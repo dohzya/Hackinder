@@ -50,6 +50,23 @@ object Projects {
     collection.find(BSONDocument("name" -> name)).one[Project]
   }
 
+  def addTeammate(project: Project, hacker: Hacker): Future[Project] = {
+    collection.update(
+      BSONDocument("_id" -> project.oid),
+      BSONDocument("$addToSet" -> BSONDocument("team" -> hacker.oid))
+    ).flatMap { _ =>
+      collection.find(
+        BSONDocument("_id" -> project.oid),
+        BSONDocument("team" -> 1)
+      ).one[BSONDocument].map { doc =>
+        val team = doc.flatMap(_.getAs[Seq[BSONObjectID]]("team")).getOrElse {
+          throw new java.lang.RuntimeException(s"Can't find player ${project.oid}'s ‘team’ field!")
+        }
+        project.copy(team = team)
+      }
+    }
+  }
+
   implicit val projectHandler = Macros.handler[Project]
 
 }
