@@ -12,8 +12,8 @@ object Application extends Controller with OAuth2 {
   def index = Authenticated.async { implicit req =>
     for {
       hackers <- Hackers.findAll
-      projects <- Projects.findAll
-    } yield Ok(views.html.index(hackers, projects))
+      (projects, teammates) <- Projects.findAllWithHackers
+    } yield Ok(views.html.index(hackers, projects, teammates))
   }
 
 }

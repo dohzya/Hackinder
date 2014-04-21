@@ -10,7 +10,7 @@ import reactivemongo.bson._
 
 import play.api.Play.current
 
-import models.Project
+import models.{ Hacker, Project }
 
 object Projects {
 
@@ -30,6 +30,14 @@ object Projects {
 
   def findAll(): Future[Seq[Project]] = {
     collection.find(BSONDocument()).cursor[Project].collect[Seq]()
+  }
+
+  def findAllWithHackers(): Future[(Seq[Project], Map[BSONObjectID, Hacker])] = {
+    for {
+      projects <- findAll
+      hackers <- Hackers.findAllById(projects.flatMap(_.team))
+      hackersMap = hackers.map(h => (h.oid, h)).toMap
+    } yield (projects, hackersMap)
   }
 
   def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Project]] = {

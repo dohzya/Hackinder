@@ -1,16 +1,45 @@
-@(hackers: Seq[Hacker], projects: Seq[Project])
+@(
+  hackers: Seq[Hacker],
+  projects: Seq[Project],
+  teammates: Map[reactivemongo.bson.BSONObjectID, Hacker]
+)(implicit me: Hacker)
 
 @main("Listing") {
 
   <ul>
     @for(hacker <- hackers) {
-      <li>@hacker.name</li>
+      @defining(projects.find(_.team.contains(hacker.oid))) { maybeProject =>
+        <li>
+          @hacker.name
+          @maybeProject match {
+            case Some(project) => {
+              @if(project.leaderId == hacker.oid) {
+                (<b>@project.name</b>)
+              } else {
+                (@project.name)
+              }
+            }
+            case None => {}
+          }
+        </li>
+      }
     }
   </ul>
 
   <ul>
     @for(project <- projects) {
-      <li>@project.name</li>
+      <li>
+        @project.name
+        <ul>
+        @for(hacker <- project.team.flatMap(teammates.get(_))) {
+          @if(hacker.oid == project.leaderId) {
+            <li><b>@hacker.name</b></li>
+          } else {
+            <li>@hacker.name</li>
+          }
+        }
+        </ul>
+      </li>
     }
   </ul>
 
