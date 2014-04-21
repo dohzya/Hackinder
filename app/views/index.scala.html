@@ -1,7 +1,11 @@
-@(message: String)
+@(hackers: Seq[Hacker])
 
-@main("Welcome to Play") {
+@main("Listing") {
 
-    @play20.welcome(message)
+  <ul>
+    @for(hacker <- hackers) {
+      <li>@hacker.name</li>
+    }
+  </ul>
 
 }
