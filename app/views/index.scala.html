@@ -1,10 +1,16 @@
-@(hackers: Seq[Hacker])
+@(hackers: Seq[Hacker], projects: Seq[Project])
 
 @main("Listing") {
 
   <ul>
     @for(hacker <- hackers) {
       <li>@hacker.name</li>
+    }
+  </ul>
+
+  <ul>
+    @for(project <- projects) {
+      <li>@project.name</li>
     }
   </ul>
 

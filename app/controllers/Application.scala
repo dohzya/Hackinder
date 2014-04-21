@@ -5,14 +5,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import play.api._
 import play.api.mvc._
 
-import engine.Hackers
+import engine.{ Hackers, Projects }
 
 object Application extends Controller with OAuth2 {
 
   def index = Authenticated.async { implicit req =>
-    Hackers.findAll.map { hackers =>
-      Ok(views.html.index(hackers))
-    }
+    for {
+      hackers <- Hackers.findAll
+      projects <- Projects.findAll
+    } yield Ok(views.html.index(hackers, projects))
   }
 
 }
