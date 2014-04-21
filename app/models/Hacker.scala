@@ -28,8 +28,8 @@ case class Hacker(
 object Hacker {
   def create(profile: Profile) = {
     val rx = """^(...)@zen(exity|gularity).com$""".r
-    val trigram = profile match {
-      case rx(t) => t
+    val trigram = profile.email match {
+      case rx(t, _) => t
       case _ => "???"
     }
     Hacker(
