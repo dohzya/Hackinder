@@ -7,7 +7,7 @@ var App = React.createClass({
     };
   },
   render : function(){
-    return <div><Notification data={this.state.me.notifications} /><YourProject /><Projects /><Hackers /></div>;
+    return <div><Notification data={this.state} /><YourProject /><Projects /><Hackers /></div>;
   }
 });
 
@@ -20,6 +20,7 @@ var Notification = React.createClass({
     console.log("refuse");
   },
   render : function(){
+    console.log(this.props.data);
     var form = <Participation3/>;
     return <div className="notification">{form}</div>;
   }
@@ -40,25 +41,25 @@ var Participation1 = React.createClass({
 
 var Participation2 = React.createClass({
   render : function(){
-    return <div class="wrapper participation-2">
+    return <div className="wrapper participation-2">
         <h1>Très heureux de te compter parmi nous :-)</h1>
         <form>
-            <label class="details">Qu'est-ce que tu voudrais faire ?</label>
+            <label className="details">Qu'est-ce que tu voudrais faire ?</label>
             <input type="text" placeholder="arduino, fun, café ..."/>
-            <input type="submit" class="button polygon" value="GO"/>
+            <input type="submit" className="button polygon" value="GO"/>
         </form>
-    </div>
+    </div>;
   }
 });
 
 var Participation3 = React.createClass({
   render : function(){
-    return <div class="wrapper participation-3">
+    return <div className="wrapper participation-3">
         <h1>Très heureux de te compter parmi nous :-)</h1>
         <form>
-            <label class="details">Qu'est-ce que tu voudrais faire ?</label>
+            <label className="details">Qu'est-ce que tu voudrais faire ?</label>
             <input type="text" placeholder="arduino, fun, café ..."/>
-            <input type="submit" class="button polygon" value="GO"/>
+            <input type="submit" className="button polygon" value="GO"/>
         </form>
     </div>
   }
