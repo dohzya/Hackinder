@@ -7,3 +7,20 @@ var Title = React.createClass({
 });
 
 React.renderComponent(<Title value="Hackinder" />, document.getElementById('title'));
+
+var Router = Abyssa.Router,
+    State = Abyssa.State;
+
+Router({
+  home: State('/', {
+    enter: function () {
+      console.log('Enter home');
+    }
+  })
+})
+.configure({
+  enableLogs: true,
+  notFound: '/'
+})
+.init();
+
