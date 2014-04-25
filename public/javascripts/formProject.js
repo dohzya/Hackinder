@@ -2,21 +2,38 @@
 
 var App = React.createClass({
   render : function(){
-    return <div><Header /><Notification /><YourProject /><Projects /><Hackers /></div>;
+    return <div><Notification /><YourProject /><Projects /><Hackers /></div>;
   }
 });
-
-var Header = React.createClass({
-  render : function(){
-    return <div>Header</div>;
-  }
-})
 
 var Notification = React.createClass({
+  accept : function(e){
+    console.log("accept");
+    e.preventDefault();
+  },
+  refuse : function(){
+    console.log("refuse");
+  },
   render : function(){
-    return <div>Notification</div>;
+    var form = <Participation1/>;
+    return <div className="notification">{form}</div>;
   }
 });
+
+var Participation1 = React.createClass({
+  render : function(){
+    return <div className="wrapper participation-1">
+        <h1>Veux-tu participer au prochain Hackday ?</h1>
+        <p className="details">Une petite réponse avant mercredi 23 avril et on serait ravi !</p>
+        <div className="buttons">
+                <a href="" className="button polygon" onClick={this.accept}>oh que oui !</a>
+                <a href="" onClick={this.refuse}>non</a>
+        </div>
+    </div>;
+  }
+});
+
+
 
 var YourProject = React.createClass({
   render : function(){
