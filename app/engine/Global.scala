@@ -1,10 +1,12 @@
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import org.joda.time.DateTime
+
 import play.api._
 
-import models.{ Hacker, Profile, Project }
-import engine.{ Hackers, Projects }
+import models.{ Event, Hacker, Profile, Project }
+import engine.{ Events, Hackers, Projects }
 
 object Global extends GlobalSettings {
 
@@ -23,29 +25,33 @@ object Global extends GlobalSettings {
               link = "",
               gender = ""
             )
-          }.map { profile =>
-            Hackers.fromProfile(profile)
-          }
-        }
-      }
-      else Future.successful { Seq() }
-    }
-    fhackers.flatMap { hackers =>
-      Projects.isEmpty.flatMap { empty =>
-        if (!hackers.isEmpty && empty) {
+          }.map { profile => Hackers.fromProfile(profile) }
+        }.flatMap { hackers =>
           Future.sequence {
             (1 to 3).map { i =>
               Projects.insert(Project.create(
                 name = s"Project $i",
+                description = s"Description $i",
+                quote = s"Quote $i",
                 leader = hackers(i)
               )).flatMap { project =>
                 Projects.addTeammate(project, hackers(hackers.length - i))
               }
             }
+          }.flatMap { projects =>
+            Events.insert(Event.create(
+              name = "Event 1",
+              date = DateTime.now.plusDays(20)
+            ).copy(
+              projects = projects.map(_.oid),
+              hackers = hackers.map(_.oid)
+            )).map { event =>
+              Some((event, projects, hackers))
+            }
           }
         }
-        else Future.successful { Seq() }
       }
+      else Future.successful { None }
     }
   }
 

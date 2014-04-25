@@ -1,32 +1,35 @@
 @main("Listing") {
 
-<div class="notification participation-1">
-	<div class="wrapper">
+<div class="notification">
+	<div class="wrapper participation-1">
 		<h1>Veux-tu participer au prochain Hackday ?</h1>
 		<p class="details">Une petite réponse avant mercredi 23 avril et on serait ravi !</p>
 		<div class="buttons">
 			<a href="" class="button polygon">oh que oui !</a>
-			<a href="">non</a>
+			<a href="" class="link">non</a>
 		</div>
-
 	</div>
 </div>
 
-<div class="notification participation-2">
-	<div class="wrapper">
+<div class="notification">
+	<div class="wrapper participation-2">
 		<h1>Très heureux de te compter parmi nous :-)</h1>
 		<form>
-			<label>Qu'est-ce que tu voudrais faire ?</label>
+			<label class="details">Qu'est-ce que tu voudrais faire ?</label>
 			<input type="text" placeholder="arduino, fun, café ..."/>
-			<input type="submit" value="GO"/>
+			<input type="submit" class="button polygon" value="GO"/>
 		</form>
 	</div>
 </div>
 
-<div class="notification invitation">
-	<p>MACHIN t'as invité à rejoindre son équipe pour le projet TRUC</p>
-	<a href="">J'accepte</a>
-	<a href="">Je décline cette invitation</a>
+<div class="notification">
+	<div class="wrapper invitation">
+		<p>MACHIN t'as invité à rejoindre son équipe pour le projet TRUC</p>
+		<div class="buttons">
+			<a href="" class="button polygon">J'accepte</a>
+			<a href="" class="link">Je décline cette invitation</a>
+		</div>
+	</div>
 </div>
 
 
@@ -49,10 +52,25 @@
 <div class="projects">
 
 	<div class="project mine">
-
-
-
-
+		<div class="wrapper">
+			<h1>Titre du projet</h1>
+			<h2>Motivation phrase lorem ipsum dolor sit amet</h2>
+			<p class="description">Description du projet en 140 caractères lorem ipsum dolro sit amet lorem ipsum dolor sit amet</p>
+			<ul class="team">
+				<li>
+					<img src="https://lh5.googleusercontent.com/-_O8gK7OLHtw/UbCI_RvnxpI/AAAAAAAAABc/VUsCzc6Z-8c/s512-no/040d3167f7422c59a76e380178233e8e.jpeg"/>
+				</li>
+				<li>
+					<img src="https://lh4.googleusercontent.com/-KDbb2ZFfGJc/U0JtqjMFqAI/AAAAAAAAAgA/e4kDiVYRUCM/w918-h920-no/4352048618240954346-MIX.jpg"/>
+				</li>
+				<li class="zentrepreneur">
+					<img src="https://lh5.googleusercontent.com/-_O8gK7OLHtw/UbCI_RvnxpI/AAAAAAAAABc/VUsCzc6Z-8c/s512-no/040d3167f7422c59a76e380178233e8e.jpeg"/>
+				</li>
+				<li>
+					<img src="https://lh4.googleusercontent.com/-KDbb2ZFfGJc/U0JtqjMFqAI/AAAAAAAAAgA/e4kDiVYRUCM/w918-h920-no/4352048618240954346-MIX.jpg"/>
+				</li>
+			</ul>
+		</div>
 	</div>
 
 
@@ -60,27 +78,23 @@
 		<h1>Titre du projet</h1>
 		<h2>Motivation phrase</h2>
 		<p>Description du projet en 140 caractères</p>
-
+		<a href="" class="button polygon">JE VEUX EN ÊTRE !!</a>
 		<ul class="team">
 			<li>
-				<img src=""/>
-				<p>Prénom nom</p>
+				<img src="https://lh5.googleusercontent.com/-_O8gK7OLHtw/UbCI_RvnxpI/AAAAAAAAABc/VUsCzc6Z-8c/s512-no/040d3167f7422c59a76e380178233e8e.jpeg"/>
 			</li>
 			<li>
-				<img src=""/>
-				<p>Prénom nom</p>
+				<img src="https://lh4.googleusercontent.com/-KDbb2ZFfGJc/U0JtqjMFqAI/AAAAAAAAAgA/e4kDiVYRUCM/w918-h920-no/4352048618240954346-MIX.jpg"/>
 			</li>
 			<li class="zentrepreneur">
-				<img src=""/>
-				<p>Prénom nom</p>
+				<img src="https://lh5.googleusercontent.com/-_O8gK7OLHtw/UbCI_RvnxpI/AAAAAAAAABc/VUsCzc6Z-8c/s512-no/040d3167f7422c59a76e380178233e8e.jpeg"/>
 			</li>
 			<li>
-				<img src=""/>
-				<p>Prénom nom</p>
+				<img src="https://lh4.googleusercontent.com/-KDbb2ZFfGJc/U0JtqjMFqAI/AAAAAAAAAgA/e4kDiVYRUCM/w918-h920-no/4352048618240954346-MIX.jpg"/>
 			</li>
 		</ul>
 
-		<a href="">JE VEUX EN ÊTRE !!</a>
+
 	</div>
 </div>
 

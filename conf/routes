@@ -8,6 +8,9 @@ GET     /                           controllers.Application.index
 POST    /projects                   controllers.API.createProject
 
 POST    /events                     controllers.API.createEvent
+GET     /projectshackers            controllers.API.getProjectsAndHackers
+
+GET     /me                         controllers.API.meNow
 
 GET     /notifications              controllers.API.notifications
 POST    /notifications/invite       controllers.API.invite

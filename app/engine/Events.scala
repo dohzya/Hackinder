@@ -53,12 +53,10 @@ object Events {
       })
   }
 
-  def getProjectsAndHackers(event: Event): Future[(Map[BSONObjectID, Project], Map[BSONObjectID, Hacker])] = for {
+  def getProjectsAndHackers(implicit event: Event): Future[(Seq[Project], Seq[Hacker])] = for {
     projects <- Projects.findAllById(event.projects)
-    projectsMap = projects.map(p => (p.oid, p)).toMap
     hackers <- Hackers.findAllById(event.hackers)
-    hackersMap = hackers.map(h => (h.oid, h)).toMap
-  } yield (projectsMap, hackersMap)
+  } yield (projects, hackers)
 
   def findByName(name: String): Future[Option[Event]] = {
     collection.find(BSONDocument("name" -> name)).one[Event]

@@ -39,11 +39,44 @@ object API extends Controller with Context {
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
       event => Events.insert(event).flatMap { event =>
         Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
-          implicit val writer = eventWriter(projects, hackers)
+          implicit val writer = eventWriter(
+            projects.map(p => (p.oid -> p)).toMap,
+            hackers.map(h => (h.oid -> h)).toMap
+          )
           Ok(Json.toJson(event))
         }
       }
     )
+  }
+
+  def meNow = WithContext { implicit req =>
+    val meJson = Json.toJson(me).asInstanceOf[JsObject]  // Just 4 U
+    currentEvent match {
+      case Some(event) =>
+        Ok(meJson ++ Json.obj(
+          "participate" -> event.hackers.contains(me.oid)
+        ))
+      case None => Ok(meJson)
+    }
+  }
+
+  def getProjectsAndHackers = WithContext.async { implicit req =>
+    currentEvent match {
+      case Some(event) =>
+        Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
+          implicit val writer = projectWriter(hackers.map(h => (h.oid -> h)).toMap)
+          Ok(Json.obj(
+            "projets" -> projects,
+            "hackers" -> hackers
+          ))
+        }
+      case None => Future.successful {
+        Ok(Json.obj(
+          "projets" -> Json.arr(),
+          "hackers" -> Json.arr()
+        ))
+      }
+    }
   }
 
   def notifications = WithContext.async { implicit req =>
@@ -120,15 +153,19 @@ object API extends Controller with Context {
 
   def projectCreationReader(leader: Hacker): Reads[Project] = {
     (
-      (__ \ "name").read[String]
-    ).map { case name =>
-      Project.create(name, leader)
+      (__ \ "name").read[String] ~
+      (__ \ "description").read[String] ~
+      (__ \ "quote").read[String]
+    ).tupled.map { case (name, description, quote) =>
+      Project.create(name, description, quote, leader)
     }
   }
 
   def projectWriter(hackers: Map[BSONObjectID, Hacker]) = new Writes[Project] {
     def writes(project: Project) = Json.obj(
       "name" -> project.name,
+      "description" -> project.description,
+      "quote" -> project.quote,
       "leader" -> hackers.get(project.leaderId),
       "team" -> JsArray(project.team.flatMap(hackers.get(_).map(Json.toJson(_))))
     )
