@@ -15,9 +15,9 @@ import reactivemongo.bson.BSONObjectID
 import models.{ Hacker, Profile, Project, Event }
 import engine.{ Projects, Events }
 
-object API extends Controller with OAuth2 {
+object API extends Controller with Context {
 
-  def createProject = Authenticated.async(parse.json) { implicit req =>
+  def createProject = WithContext.async(parse.json) { implicit req =>
     implicit val reader = projectCreationReader(me)
     reader.reads(req.body).fold(
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
@@ -30,7 +30,7 @@ object API extends Controller with OAuth2 {
     )
   }
 
-  def createEvent = Authenticated.async(parse.json) { implicit req =>
+  def createEvent = WithContext.async(parse.json) { implicit req =>
     implicit val reader = eventCreationReader
     reader.reads(req.body).fold(
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
