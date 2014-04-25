@@ -12,8 +12,9 @@ import play.api.mvc._
 
 import reactivemongo.bson.BSONObjectID
 
-import models._
 import engine.{ Projects, Events, Hackers, Notifications }
+import models.{ Event, Hacker, Profile, Project, Notification }
+import models.{ AskProjectNotification, InviteHackerNotification, ParticipationNotification }
 
 object API extends Controller with Context {
 
@@ -37,12 +38,41 @@ object API extends Controller with Context {
     reader.reads(req.body).fold(
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
       event => Events.insert(event).flatMap { event =>
-        Events.getProjectsAndHackers(event).map { case (projectsWithHackers, hackers) =>
-          implicit val writer = eventWriter(hackers, projectsWithHackers)
+        Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
+          implicit val writer = eventWriter(
+            projects.map(p => (p.oid -> p)).toMap,
+            hackers.map(h => (h.oid -> h)).toMap
+          )
           Ok(Json.toJson(event))
         }
       }
     )
+  }
+
+  def getProjectsAndHackers = WithContext.async { implicit req =>
+    currentEvent match {
+      case Some(event) =>
+        Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
+          implicit val writer = projectWriter(hackers.map(h => (h.oid -> h)).toMap)
+          Ok(Json.obj(
+            "projets" -> projects,
+            "hackers" -> hackers
+          ))
+        }
+      case None => Future.successful {
+        Ok(Json.obj(
+          "projets" -> Json.arr(),
+          "hackers" -> Json.arr()
+        ))
+      }
+    }
+  }
+
+  def notifications = WithContext.async { implicit req =>
+    Notifications.ofUser.map { case (notifications, projects, hackers) =>
+      implicit val writer = notificationsWriter(projects, hackers)
+      Ok(Json.toJson(notifications))
+    }
   }
 
   // Receive hacker email on POST
@@ -75,29 +105,33 @@ object API extends Controller with Context {
 
   def projectCreationReader(leader: Hacker): Reads[Project] = {
     (
-      (__ \ "name").read[String]
-    ).map { case name =>
-      Project.create(name, leader)
+      (__ \ "name").read[String] ~
+      (__ \ "description").read[String] ~
+      (__ \ "quote").read[String]
+    ).tupled.map { case (name, description, quote) =>
+      Project.create(name, description, quote, leader)
     }
   }
 
   def projectWriter(hackers: Map[BSONObjectID, Hacker]) = new Writes[Project] {
     def writes(project: Project) = Json.obj(
       "name" -> project.name,
+      "description" -> project.description,
+      "quote" -> project.quote,
       "leader" -> hackers.get(project.leaderId),
       "team" -> JsArray(project.team.flatMap(hackers.get(_).map(Json.toJson(_))))
     )
   }
 
-  def eventWriter(hackers: Map[BSONObjectID, Hacker], projectsWithHackers: Map[BSONObjectID, (Project, Map[BSONObjectID, Hacker])]) = new Writes[Event] {
+  def eventWriter(projects: Map[BSONObjectID, Project], hackers: Map[BSONObjectID, Hacker]) = new Writes[Event] {
     def writes(event: Event) = Json.obj(
       "name" -> event.name,
       "date" -> event.date,
       "hackers" -> JsArray(event.hackers.flatMap(hackers.get(_).map(Json.toJson(_)))),
       "projects" -> JsArray(event.projects.flatMap {
-        projectsWithHackers.get(_).map { project =>
-          implicit val writer = projectWriter(project._2)
-          Json.toJson(project._1)
+        projects.get(_).map { project =>
+          implicit val writer = projectWriter(hackers)
+          Json.toJson(project)
         }
       })
     )
@@ -111,6 +145,36 @@ object API extends Controller with Context {
       "name" -> hacker.name,
       "profile" -> hacker.profile
     )
+  }
+
+  def notificationsWriter(projects: Map[BSONObjectID, Project], hackers: Map[BSONObjectID, Hacker]) = new Writes[Notification] {
+    implicit val _projectWriter = projectWriter(hackers)
+    implicit val participationHandler = new Writes[ParticipationNotification] {
+      def writes(notif: ParticipationNotification) = Json.obj(
+        "id" -> notif.id,
+        "type" -> notif.typ
+      )
+    }
+    implicit val inviteHackerHandler = new Writes[InviteHackerNotification] {
+      def writes(notif: InviteHackerNotification) = Json.obj(
+        "id" -> notif.id,
+        "project" -> projects.get(notif.projectId),
+        "type" -> notif.typ
+      )
+    }
+    implicit val askProjectHandler = new Writes[AskProjectNotification] {
+      def writes(notif: AskProjectNotification) = Json.obj(
+        "id" -> notif.id,
+        "hacker" -> hackers.get(notif.hackerId),
+        "type" -> notif.typ
+      )
+    }
+
+    def writes(notification: Notification) = notification match {
+      case notif: ParticipationNotification => participationHandler.writes(notif)
+      case notif: InviteHackerNotification => inviteHackerHandler.writes(notif)
+      case notif: AskProjectNotification => askProjectHandler.writes(notif)
+    }
   }
 
 }
