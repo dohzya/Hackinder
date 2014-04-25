@@ -6,51 +6,56 @@
 
 @main("Listing") {
 
-  <header>
-    <h1>HACKINDER</h1>
-    <h2>Hackday s03e04</h2>
-    <h3>25 avril 2014</h3>
-  </header>
+  <div class="main">
+    <section id="new-project"></section>
 
-  <ul>
-    @for(hacker <- hackers) {
-      @defining(projects.find(_.team.contains(hacker.oid))) { maybeProject =>
-        <li>
-          @for(pictureURL <- hacker.profile.picture) {
-            <img src="@pictureURL" alt="Picture of @hacker.name"
-                 style="width:50px;height:50px;border-radius:5px" />
-          }
-          @hacker.name
-          @maybeProject match {
-            case Some(project) => {
-              @if(project.leaderId == hacker.oid) {
-                (<b>@project.name</b>)
-              } else {
-                (@project.name)
+    <section id="my-project"></section>
+
+    <section id="hackers">
+      <ul>
+        @for(hacker <- hackers) {
+          @defining(projects.find(_.team.contains(hacker.oid))) { maybeProject =>
+            <li>
+              @for(pictureURL <- hacker.profile.picture) {
+                <img src="@pictureURL" alt="Picture of @hacker.name"
+                     style="width:50px;height:50px;border-radius:5px" />
               }
-            }
-            case None => {}
-          }
-        </li>
-      }
-    }
-  </ul>
-
-  <ul>
-    @for(project <- projects) {
-      <li>
-        @project.name
-        <ul>
-        @for(hacker <- project.team.flatMap(teammates.get(_))) {
-          @if(hacker.oid == project.leaderId) {
-            <li><b>@hacker.name</b></li>
-          } else {
-            <li>@hacker.name</li>
+              @hacker.name
+              @maybeProject match {
+                case Some(project) => {
+                  @if(project.leaderId == hacker.oid) {
+                    (<b>@project.name</b>)
+                  } else {
+                    (@project.name)
+                  }
+                }
+                case None => {}
+              }
+            </li>
           }
         }
-        </ul>
-      </li>
-    }
-  </ul>
+      </ul>
+    </section>
+
+    <section id="projects">
+      <ul>
+        @for(project <- projects) {
+          <li>
+            @project.name
+            <ul>
+            @for(hacker <- project.team.flatMap(teammates.get(_))) {
+              @if(hacker.oid == project.leaderId) {
+                <li><b>@hacker.name</b></li>
+              } else {
+                <li>@hacker.name</li>
+              }
+            }
+            </ul>
+          </li>
+        }
+      </ul>
+    </section>
+
+  </div>
 
 }
