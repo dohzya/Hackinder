@@ -15,18 +15,25 @@ var Notification = React.createClass({
     console.log("refuse");
   },
   render : function(){
-    return <div className="notification participation-1">
-	<div className="wrapper">
-		<h1>Veux-tu participer au prochain Hackday ?</h1>
-		<p className="details">Une petite réponse avant mercredi 23 avril et on serait ravi !</p>
-		<div className="buttons">
-			<a href="" className="button polygon" onClick={this.accept}>oh que oui !</a>
-			<a href="" onClick={this.refuse}>non</a>
-		</div>
-	</div>
+    var form = <Participation1/>;
+    return <div className="notification">{form}</div>;
+  }
+});
+
+var Participation1 = React.createClass({
+  render : function(){
+    return <div className="wrapper participation-1">
+        <h1>Veux-tu participer au prochain Hackday ?</h1>
+        <p className="details">Une petite réponse avant mercredi 23 avril et on serait ravi !</p>
+        <div className="buttons">
+                <a href="" className="button polygon" onClick={this.accept}>oh que oui !</a>
+                <a href="" onClick={this.refuse}>non</a>
+        </div>
     </div>;
   }
 });
+
+
 
 var YourProject = React.createClass({
   render : function(){
