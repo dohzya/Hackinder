@@ -7,7 +7,7 @@ import play.api._
 import play.api.mvc._
 import play.api.Play.current
 
-import engine.Events
+import engine.{ Events, Notifications }
 import models.{ Event, Hacker }
 
 case class CtxRequest[A](request: Request[A], ctx: Ctx) extends WrappedRequest(request)
@@ -23,11 +23,16 @@ trait Context {
     def invokeBlock[A](request: Request[A], block: (CtxRequest[A]) => Future[SimpleResult]) = {
       OAuth2.authenticatedAction[A](request, req => {
         Events.findCurrentEvent().flatMap { event =>
-          val ctx = Ctx(
-            hacker = req.hacker,
-            event = event
-          )
-          block(CtxRequest(req.request, ctx))
+          (event match {
+            case Some(e) => Notifications.createIfNeeded(e, req.hacker.oid)
+            case None => Future.successful { () }
+          }).flatMap { _ =>
+            val ctx = Ctx(
+              hacker = req.hacker,
+              event = event
+            )
+            block(CtxRequest(req.request, ctx))
+          }
         }
       })
     }

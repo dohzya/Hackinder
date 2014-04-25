@@ -29,6 +29,25 @@ object Notifications {
     } yield notification
   }
 
+  def createIfNeeded(event: Event, hackerId: BSONObjectID): Future[Unit] = {
+    if (!event.hackers.contains(hackerId)) {
+      collection.find(BSONDocument(
+        "typ" -> ParticipationNotification.typ,
+        "hackerId" -> hackerId,
+        "eventId" -> event.oid
+      )).one[BSONDocument].flatMap { notif =>
+        if (notif.isEmpty) {
+          Notifications.insert(ParticipationNotification.create(
+            event = event,
+            hackerId = hackerId
+          )).map(_ => ())
+        }
+        else Future.successful { () }
+      }
+    }
+    else Future.successful { () }
+  }
+
   def findById(id: BSONObjectID): Future[Option[Notification]] = {
     collection.find(BSONDocument("_id" -> id)).one[Notification]
   }
