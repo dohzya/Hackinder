@@ -9,6 +9,7 @@ POST    /projects                   controllers.API.createProject
 
 POST    /events                     controllers.API.createEvent
 
+GET     /notifications              controllers.API.notifications
 POST    /invite                     controllers.API.invite
 
 GET     /login                      controllers.OAuth2.login

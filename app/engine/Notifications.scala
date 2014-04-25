@@ -10,7 +10,8 @@ import reactivemongo.bson._
 
 import play.api.Play.current
 
-import models.{ Hacker, Profile }
+import controllers.Ctx
+import models.{ Event, Hacker, Profile, Project }
 import models.Notification
 import models.{ AskProjectNotification, InviteHackerNotification, ParticipationNotification }
 
@@ -32,12 +33,28 @@ object Notifications {
     collection.find(BSONDocument("_id" -> id)).one[Notification]
   }
 
-  def findAllByHackerId(hackerId: BSONObjectID): Future[Option[Notification]] = {
-    collection.find(BSONDocument("hackerId" -> hackerId)).one[Notification]
-  }
-
-  def findAllByProjectId(projectId: BSONObjectID): Future[Option[Notification]] = {
-    collection.find(BSONDocument("projectId" -> projectId)).one[Notification]
+  def ofUser(implicit ctx: Ctx): Future[(Seq[Notification], Map[BSONObjectID, Project], Map[BSONObjectID, Hacker])] = {
+    val query = ctx.event match {
+      case Some(event) =>
+        BSONDocument("$or" -> BSONArray(
+          BSONDocument("hackerId" -> ctx.hacker.oid),
+          BSONDocument(
+            "leaderId" -> ctx.hacker.oid,
+            "projectId" -> BSONDocument("$in" -> event.projects)
+          )
+        ))
+      case None => BSONDocument("hackerId" -> ctx.hacker.oid)
+    }
+    collection.find(query).cursor[Notification].collect[Seq]().flatMap { notifs =>
+      val projectIds = notifs.flatMap {
+        case notif: ParticipationNotification => None
+        case notif: InviteHackerNotification => Some(notif.projectId)
+        case notif: AskProjectNotification => Some(notif.projectId)
+      }
+      Projects.findAllByIdWithHackers(projectIds).map { case (projects, hackers) =>
+        (notifs, projects.map(p => (p.oid -> p)).toMap, hackers)
+      }
+    }
   }
 
   implicit val participationHandler = new BSONDocumentHandler[ParticipationNotification] {

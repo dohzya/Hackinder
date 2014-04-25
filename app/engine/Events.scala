@@ -49,12 +49,12 @@ object Events {
       })
   }
 
-  def getProjectsAndHackers(event: Event): Future[(Map[BSONObjectID, (Project, Map[BSONObjectID, Hacker])], Map[BSONObjectID, Hacker])] = for {
-    projectsWithHackers <- Projects.findAllByIdWithHackers(event.projects)
-    projectsWithHackersMap = projectsWithHackers.map { case (p, hackers) => (p.oid, (p, hackers)) }.toMap
+  def getProjectsAndHackers(event: Event): Future[(Map[BSONObjectID, Project], Map[BSONObjectID, Hacker])] = for {
+    projects <- Projects.findAllById(event.projects)
+    projectsMap = projects.map(p => (p.oid, p)).toMap
     hackers <- Hackers.findAllById(event.hackers)
     hackersMap = hackers.map(h => (h.oid, h)).toMap
-  } yield (projectsWithHackersMap, hackersMap)
+  } yield (projectsMap, hackersMap)
 
   def findByName(name: String): Future[Option[Event]] = {
     collection.find(BSONDocument("name" -> name)).one[Event]
