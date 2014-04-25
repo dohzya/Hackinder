@@ -23,7 +23,7 @@ object API extends Controller with Context {
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
       project => for {
         insert <- Projects.insert(project)
-        _ <- Future.sequence(req.ctx.currentEvent.map( e => Events.addProject(e, insert)))
+        _ <- Future.sequence(currentEvent.map( e => Events.addProject(e, insert)).toSeq)
         json <- Projects.findHackersOf(insert).map(_.map(h => (h.oid -> h)).toMap).map { hackers =>
           implicit val writer = projectWriter(hackers)
           Json.toJson(insert)
