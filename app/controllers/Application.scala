@@ -16,4 +16,8 @@ object Application extends Controller with Context {
     } yield Ok(views.html.index(hackers, projects, teammates))
   }
 
+  def staticP = Action {
+    Ok(views.html.staticP())
+  }
+
 }

@@ -43,10 +43,7 @@ var formProject = React.createClass({
 });
 
 var toggleCreate = function (create) {
-  if (create) {
     React.renderComponent(<formProject/>, document.getElementById('new-project'));
-  } else {
     React.renderComponent(<createButton/>, document.getElementById('new-project'));
-  }
 }
 
