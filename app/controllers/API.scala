@@ -49,14 +49,22 @@ object API extends Controller with Context {
     )
   }
 
-  def meNow = WithContext { implicit req =>
+  def meNow = WithContext.async { implicit req =>
     val meJson = Json.toJson(me).asInstanceOf[JsObject]  // Just 4 U
     currentEvent match {
       case Some(event) =>
-        Ok(meJson ++ Json.obj(
-          "participate" -> event.hackers.contains(me.oid)
-        ))
-      case None => Ok(meJson)
+        Notifications.ofUser.map { case (notifications, projects, hackers) =>
+          implicit val writer = notificationsWriter(projects, hackers)
+          Json.toJson(notifications)
+        }.map { notifs =>
+          Ok(Json.obj(
+            "me" -> (meJson ++ Json.obj(
+              "participate" -> event.hackers.contains(me.oid)
+            )),
+            "notifications" -> notifs
+          ))
+        }
+      case None => Future.successful { Ok(meJson) }
     }
   }
 
