@@ -10,7 +10,8 @@
 @darkgrey: 	#282828;
 @black : 	#0d0d0d;
 @lightpink: #ff7a9c;
-@whitepink: #efdae0;
+@pink: 		#FC5781;
+@whitepink: #e8d1d7;
 
 // *********************** FONTS *************
 
@@ -54,7 +55,7 @@ header{
 				display: inline-block;
 				height: 50px;
 				width: 35px;
-				background: @lightpink;
+				background: @pink;
 				.border-radius(~"50%/60%" 60% 40% 40%);
 				vertical-align: text-top;
 				margin-right: 20px;
@@ -92,13 +93,47 @@ header{
 .notification{
 	background: @black;
 	text-align: center;
+	padding: 40px 0px;
 	h1{
 		color: @whitepink;
+		font-size: 36px;
+		line-height: 40px;
+		font-weight: 300;
+		margin-bottom: 10px;
 	}
 	p.details{
 		color: #FFF;
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 400;
+		margin-bottom: 20px;
+	}
+	.buttons{
+		height: 300px;
 	}
 }
 
 
 // *********************** SPECIFIC STYLES ***
+
+.button{
+	min-width: 120px;
+	background: @lightpink;
+	display: inline-block;
+	text-align: center;
+	vertical-align: middle;
+	padding: 0px 15px;
+	.nolinkstyle;
+	color: #FFF;
+	.transition(all 0.2s ease);
+	&.polygon{
+		height: 60px;
+		line-height: 60px;
+		.clip-path(polygon(40% 10%, 100% 38%, 75% 100%, 19% 90%, 0 38%));
+	}
+	&:hover{
+		.clip-path(polygon(40% 0%, 100% 38%, 75% 92%, 19% 97%, 0 38%));
+		background: @pink;
+		color: #FFF;
+	}
+}
