@@ -66,7 +66,7 @@ var Participation3 = React.createClass({
 
 var YourProject = React.createClass({
   render : function(){
-    return <div></div>;
+    return <div><formProject/></div>;
   }
 });
 
