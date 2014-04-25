@@ -66,8 +66,21 @@ var Participation3 = React.createClass({
 });
 
 var YourProject = React.createClass({
+  getInitialState: function(){
+    return { 
+      status : 'none'
+    };
+  },
+  switchTo: function (newStatus) {
+    this.setState({status: newStatus});
+  },
   render : function(){
-    return <div><formProject/></div>;
+    return <div>
+      {this.state.status === 'none' ? <createButton cb={this.switchTo}/> : ''}
+      {this.state.status === 'creating' ? <formProject cb={this.switchTo}/> : ''}
+      {this.state.status === 'displaying' ? <detailProject cb={this.switchTo}/> : ''}
+      {this.state.status === 'editing' ? <formProject cb={this.switchTo}/> : ''}
+    </div>;
   }
 });
 
@@ -85,21 +98,30 @@ var Hackers = React.createClass({
 
 var createButton = React.createClass({
   onClick: function () {
-    console.log('CLICK', router.currentState().params);
-    go({create: true});
+    this.props.cb('creating');
+    // go({create: true});
   },
   render: function () {
-    console.log(this.props);
     return <div class="new-project">
-      <button type="button" onClick={this.onClick}>Crée ton projet</button>
+      <button type="button" class="button polygon" onClick={this.onClick}>Crée ton projet</button>
     </div>
   }
 });
 
 var formProject = React.createClass({
   onSubmit: function () {
+    var self = this;
+
     console.log('onSubmit', this.props, this.state);
-    go({create: false});
+    $.ajax({
+      type: 'POST',
+      url: '/projects',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify(this.state)
+    }).done(function (data) {
+      self.props.cb('displaying');
+      // go({create: false});
+    });
   },
   handleName: function (event) {
     this.setState({name: event.target.value});
@@ -121,21 +143,23 @@ var formProject = React.createClass({
         <input type="text" onChange={this.handleName} placeholder="Nom du projet"/>
         <textarea onChange={this.handleDescription} placeholder="Description"/>
         <input type="text" onChange={this.handleQuote} placeholder="Il faut venir dans mon équipe paske..."/>
-        <button type="submit">GO !</button>
+        <button type="submit" class="button polygon">GO !</button>
       </form>
     </div>;
   }
 });
 
-var toggleCreate = function (create) {
-  if(create){
-    React.renderComponent(<formProject/>, document.getElementById('new-project'));
+var detailProject = React.createClass({
+  onClick: function () {
+    this.props.cb('editing');
+    // go({create: true});
+  },
+  render: function () {
+    return <div>
+      Your project
+    </div>
   }
-  else {
-    React.renderComponent(<createButton/>, document.getElementById('new-project'));
-  }
-}
-
+});
 
 var createApp = function(){
   return React.renderComponent(<App/>, document.getElementById("app"));
