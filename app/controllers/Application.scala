@@ -7,9 +7,9 @@ import play.api.mvc._
 
 import engine.{ Hackers, Projects }
 
-object Application extends Controller with OAuth2 {
+object Application extends Controller with Context {
 
-  def index = Authenticated.async { implicit req =>
+  def index = WithContext.async { implicit req =>
     for {
       hackers <- Hackers.findAll
       (projects, teammates) <- Projects.findAllWithHackers
