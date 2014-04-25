@@ -37,6 +37,8 @@ object Global extends GlobalSettings {
             (1 to 3).map { i =>
               Projects.insert(Project.create(
                 name = s"Project $i",
+                description = s"Description $i",
+                quote = s"Quote $i",
                 leader = hackers(i)
               )).flatMap { project =>
                 Projects.addTeammate(project, hackers(hackers.length - i))

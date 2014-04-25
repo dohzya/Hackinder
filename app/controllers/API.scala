@@ -105,15 +105,19 @@ object API extends Controller with Context {
 
   def projectCreationReader(leader: Hacker): Reads[Project] = {
     (
-      (__ \ "name").read[String]
-    ).map { case name =>
-      Project.create(name, leader)
+      (__ \ "name").read[String] ~
+      (__ \ "description").read[String] ~
+      (__ \ "quote").read[String]
+    ).tupled.map { case (name, description, quote) =>
+      Project.create(name, description, quote, leader)
     }
   }
 
   def projectWriter(hackers: Map[BSONObjectID, Hacker]) = new Writes[Project] {
     def writes(project: Project) = Json.obj(
       "name" -> project.name,
+      "description" -> project.description,
+      "quote" -> project.quote,
       "leader" -> hackers.get(project.leaderId),
       "team" -> JsArray(project.team.flatMap(hackers.get(_).map(Json.toJson(_))))
     )
