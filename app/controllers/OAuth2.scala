@@ -22,26 +22,16 @@ import play.api.libs.ws._
 import models.Hacker
 import engine.Hackers
 
+case class AuthenticatedRequest[A](request: Request[A], hacker: Hacker) extends WrappedRequest(request)
+
 trait OAuth2 {
   this: Controller =>
-
-  case class AuthenticatedRequest[A](request: Request[A], hacker: Hacker) extends WrappedRequest(request)
 
   implicit def me(implicit req: AuthenticatedRequest[_]) = req.hacker
 
   object Authenticated extends ActionBuilder[AuthenticatedRequest] {
     def invokeBlock[A](request: Request[A], block: (AuthenticatedRequest[A]) => Future[SimpleResult]) = {
-      OAuth2.TokenResponse.fromSession(request.session) match {
-        case Some(token) =>
-          OAuth2.getProfile(token).flatMap {
-            case Success(profile) => profile.toHacker.flatMap { hacker =>
-              block(AuthenticatedRequest(request, hacker))
-            }
-            case Failure(OAuth2.OAuthErrorResult(errorResult)) => Future.successful { errorResult }
-            case Failure(error) => Future.successful { InternalServerError("Internal Error") }
-          }
-        case None => Future.successful { Redirect(OAuth2.connectionURL) }
-      }
+      OAuth2.authenticatedAction(request, block)
     }
   }
 
@@ -50,6 +40,20 @@ trait OAuth2 {
 object OAuth2 extends Controller {
   import play.api.data._
   import play.api.data.Forms._
+
+  def authenticatedAction[A](request: Request[A], block: (AuthenticatedRequest[A]) => Future[SimpleResult]) = {
+    TokenResponse.fromSession(request.session) match {
+      case Some(token) =>
+        getProfile(token).flatMap {
+          case Success(profile) => profile.toHacker.flatMap { hacker =>
+            block(AuthenticatedRequest(request, hacker))
+          }
+          case Failure(OAuthErrorResult(errorResult)) => Future.successful { errorResult }
+          case Failure(error) => Future.successful { InternalServerError("Internal Error") }
+        }
+      case None => Future.successful { Redirect(connectionURL) }
+    }
+  }
 
   case class OAuth2Token(value: String)
 
