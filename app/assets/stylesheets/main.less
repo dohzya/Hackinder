@@ -19,6 +19,24 @@
 
 @open: 'Open Sans', 'sans-serif';
 
+// *********************** ANIMATIONS *************
+
+@-webkit-keyframes sexy {
+	0% {
+		text-shadow: 0 0 2px @pink;
+	  background: -webkit-linear-gradient(darken(@whitepink, 5%), darken(saturate(@whitepink, 20%), 15%));
+	}
+
+	50% {
+		text-shadow: 0 0 18px @pink;
+	  background: -webkit-linear-gradient(darken(@whitepink, 5%), darken(saturate(@whitepink, 25%), 20%));
+	}
+
+	100% {
+		text-shadow: 0 0 2px @pink;
+	  background: -webkit-linear-gradient(darken(@whitepink, 5%), darken(saturate(@whitepink, 20%), 15%));
+	}
+}
 
 // *********************** GENERAL ***********
 
@@ -70,13 +88,14 @@ header{
 		h2{
 			font-size: 26px;
 			margin-right: 12px;
+			vertical-align: super;
 		}
 		h3{
 			.border-radius(50%);
 			border: solid 1px @whitepink;
 			text-align: center;
-			.square(60px);
-			padding: 11px 0px;
+			.square(65px);
+			padding: 15px 0px;
 			span{
 				display: inline-block;
 				font-weight: 500;
@@ -101,6 +120,10 @@ header{
 		line-height: 40px;
 		font-weight: 300;
 		margin-bottom: 20px;
+	  background: -webkit-linear-gradient(darken(@whitepink, 5%), darken(saturate(@whitepink, 35%), 25%));
+	  -webkit-background-clip: text;
+	  -webkit-text-fill-color: transparent;
+	  .animation(sexy 2.4s ease forwards infinite);
 	}
 	.details{
 		color: fadeout(#FFF, 20%);
