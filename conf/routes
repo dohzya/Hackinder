@@ -9,6 +9,8 @@ POST    /projects                   controllers.API.createProject
 
 POST    /events                     controllers.API.createEvent
 
+GET     /notifications              controllers.API.notifications
+
 GET     /login                      controllers.OAuth2.login
 GET     /logout                     controllers.OAuth2.logout
 GET     /oauth2callback             controllers.OAuth2.oauth2callback

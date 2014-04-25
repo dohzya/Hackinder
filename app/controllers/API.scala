@@ -12,8 +12,9 @@ import play.api.mvc._
 
 import reactivemongo.bson.BSONObjectID
 
-import models.{ Hacker, Profile, Project, Event }
-import engine.{ Projects, Events }
+import models.{ Event, Hacker, Profile, Project, Notification }
+import engine.{ Events, Notifications, Projects }
+import models.{ AskProjectNotification, InviteHackerNotification, ParticipationNotification }
 
 object API extends Controller with Context {
 
@@ -43,6 +44,13 @@ object API extends Controller with Context {
         }
       }
     )
+  }
+
+  def notifications = WithContext.async { implicit req =>
+    Notifications.ofUser.map { case (notifications, projects, hackers) =>
+      implicit val writer = notificationsWriter(projects, hackers)
+      Ok(Json.toJson(notifications))
+    }
   }
 
   // UTILS
@@ -94,6 +102,36 @@ object API extends Controller with Context {
       "name" -> hacker.name,
       "profile" -> hacker.profile
     )
+  }
+
+  def notificationsWriter(projects: Map[BSONObjectID, Project], hackers: Map[BSONObjectID, Hacker]) = new Writes[Notification] {
+    implicit val _projectWriter = projectWriter(hackers)
+    implicit val participationHandler = new Writes[ParticipationNotification] {
+      def writes(notif: ParticipationNotification) = Json.obj(
+        "id" -> notif.id,
+        "type" -> notif.typ
+      )
+    }
+    implicit val inviteHackerHandler = new Writes[InviteHackerNotification] {
+      def writes(notif: InviteHackerNotification) = Json.obj(
+        "id" -> notif.id,
+        "project" -> projects.get(notif.projectId),
+        "type" -> notif.typ
+      )
+    }
+    implicit val askProjectHandler = new Writes[AskProjectNotification] {
+      def writes(notif: AskProjectNotification) = Json.obj(
+        "id" -> notif.id,
+        "hacker" -> hackers.get(notif.hackerId),
+        "type" -> notif.typ
+      )
+    }
+
+    def writes(notification: Notification) = notification match {
+      case notif: ParticipationNotification => participationHandler.writes(notif)
+      case notif: InviteHackerNotification => inviteHackerHandler.writes(notif)
+      case notif: AskProjectNotification => askProjectHandler.writes(notif)
+    }
   }
 
 }
