@@ -11,6 +11,7 @@ import reactivemongo.bson._
 import play.api.Play.current
 
 import models.{ Hacker, Project }
+import controllers.Ctx
 
 object Projects {
 
@@ -77,6 +78,13 @@ object Projects {
         project.copy(team = team)
       }
     }
+  }
+
+  def ofZentrepreneur(leader: Hacker)(implicit ctx: Ctx): Future[Option[Project]] = {
+   collection.find(BSONDocument(
+     "leaderId" -> leader.oid,
+     "_id" -> BSONDocument("$in"-> ctx.event.map(_.projects).getOrElse(Nil))
+   )).one[Project]
   }
 
   implicit val projectHandler = Macros.handler[Project]

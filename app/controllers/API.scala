@@ -12,8 +12,8 @@ import play.api.mvc._
 
 import reactivemongo.bson.BSONObjectID
 
-import models.{ Hacker, Profile, Project, Event }
-import engine.{ Projects, Events }
+import models._
+import engine.{ Projects, Events, Hackers, Notifications }
 
 object API extends Controller with Context {
 
@@ -43,6 +43,23 @@ object API extends Controller with Context {
         }
       }
     )
+  }
+
+  // Receive hacker email on POST
+  def invite = WithContext.async(parse.json) { implicit req =>
+    req.body.validate[String] match {
+      case JsSuccess(email, _) => for {
+        project <- Projects.ofZentrepreneur(me)
+        hacker <- Hackers.findByEmail(email)
+        notif <- Future.successful(for {
+          p <- project
+          h <- hacker
+          invite = InviteHackerNotification.create(p, h.oid)
+        } yield invite)
+        insert <- Future.sequence(notif.map(Notifications.insert(_)).toSeq)
+      } yield Ok
+      case JsError(e) => Future.successful(BadRequest)
+    }
   }
 
   // UTILS
