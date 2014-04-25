@@ -27,7 +27,8 @@ Router({
       this.data('edit', params.edit);
       this.data('slide', params.slide);
 
-      toggleCreate(params.create);
+      createApp();
+      //toggleCreate(params.create);
       // toggleEdit(params.edit);
       // slideTo(params.slide);
     },

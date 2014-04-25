@@ -1,5 +1,41 @@
 /** @jsx React.DOM */
 
+var App = React.createClass({
+  render : function(){
+    return <div><Header /><Notification /><YourProject /><Projects /><Hackers /></div>;
+  }
+});
+
+var Header = React.createClass({
+  render : function(){
+    return <div>Header</div>;
+  }
+})
+
+var Notification = React.createClass({
+  render : function(){
+    return <div>Notification</div>;
+  }
+});
+
+var YourProject = React.createClass({
+  render : function(){
+    return <div></div>;
+  }
+});
+
+var Projects = React.createClass({
+  render : function(){
+    return <div></div>;
+  }
+});
+
+var Hackers = React.createClass({
+  render : function(){
+    return <div></div>;
+  }
+});
+
 var createButton = React.createClass({
   onClick: function () {
     console.log('CLICK');
@@ -43,7 +79,15 @@ var formProject = React.createClass({
 });
 
 var toggleCreate = function (create) {
+  if(create){
     React.renderComponent(<formProject/>, document.getElementById('new-project'));
+  }
+  else {
     React.renderComponent(<createButton/>, document.getElementById('new-project'));
+  }
 }
 
+
+var createApp = function(){
+  return React.renderComponent(<App/>, document.getElementById("app"));
+};

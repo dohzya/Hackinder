@@ -9,8 +9,9 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
     </head>
     <body>
-        @content
-
+        <div id="app">
+            @content
+        </div>
         <script src="@routes.Assets.at("javascripts/vendors/jquery.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/vendors/onepage-scroll.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/vendors/abyssa-with-deps.js")" type="text/javascript"></script>
