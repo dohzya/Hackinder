@@ -53,10 +53,14 @@ object Projects {
               .collect[Seq]()
   }
 
-  def findAllByIdWithHackers(ids: Seq[BSONObjectID]): Future[Seq[(Project, Map[BSONObjectID, Hacker])]] = for {
-    projects <- findAllById(ids)
-    projectsAndHackers <- Future.sequence(projects.map { project => findHackersOf(project).map( hackers => (project, hackers.map(h => (h.oid -> h)).toMap)) })
-  } yield projectsAndHackers
+  def findAllByIdWithHackers(ids: Seq[BSONObjectID]): Future[(Seq[Project], Map[BSONObjectID, Hacker])] = {
+    findAllById(ids).flatMap { projects =>
+      val hackerIds = projects.flatMap(_.team)
+      Hackers.findAllById(hackerIds).map { hackers =>
+        (projects, hackers.map(h => (h.oid -> h)).toMap)
+      }
+    }
+  }
 
   def findByName(name: String): Future[Option[Project]] = {
     collection.find(BSONDocument("name" -> name)).one[Project]
