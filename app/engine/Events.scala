@@ -33,6 +33,10 @@ object Events {
     collection.find(BSONDocument()).cursor[Event].collect[Seq]()
   }
 
+  def findById(id: BSONObjectID): Future[Option[Event]] = {
+    collection.find(BSONDocument("_id" -> id)).one[Event]
+  }
+
   def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Event]] = {
     collection.find(BSONDocument("_id" -> BSONDocument("$in" -> ids)))
       .cursor[Event]
@@ -71,6 +75,23 @@ object Events {
           throw new java.lang.RuntimeException(s"Can't find event ${event.oid}'s 'projects' field!")
         }
         event.copy(projects = projects)
+      }
+    }
+  }
+
+  def addHacker(event: Event, hacker: Hacker): Future[Event] = {
+    collection.update(
+      BSONDocument("_id" -> event.oid),
+      BSONDocument("$addToSet" -> BSONDocument("hackers" -> hacker.oid))
+    ).flatMap { _ =>
+      collection.find(
+        BSONDocument("_id" -> event.oid),
+        BSONDocument("hackers" -> 1)
+      ).one[BSONDocument].map { doc =>
+        val hackers = doc.flatMap(_.getAs[Seq[BSONObjectID]]("hackers")).getOrElse {
+          throw new java.lang.RuntimeException(s"Can't find player ${event.oid}'s 'hackers’ field!")
+        }
+        event.copy(hackers = hackers)
       }
     }
   }

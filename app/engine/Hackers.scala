@@ -38,6 +38,10 @@ object Hackers {
               .collect[Seq]()
   }
 
+  def findById(id: BSONObjectID): Future[Option[Hacker]] = {
+    collection.find(BSONDocument("_id" -> id)).one[Hacker]
+  }
+
   def findByEmail(email: String): Future[Option[Hacker]] = {
     collection.find(BSONDocument("profile.email" -> email)).one[Hacker]
   }

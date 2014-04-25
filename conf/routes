@@ -13,7 +13,9 @@ GET     /projectshackers            controllers.API.getProjectsAndHackers
 GET     /me                         controllers.API.meNow
 
 GET     /notifications              controllers.API.notifications
-POST    /invite                     controllers.API.invite
+POST    /notifications/invite       controllers.API.invite
+PUT     /notifications/accept       controllers.API.accept
+PUT     /notifications/decline      controllers.API.decline
 
 GET     /login                      controllers.OAuth2.login
 GET     /logout                     controllers.OAuth2.logout

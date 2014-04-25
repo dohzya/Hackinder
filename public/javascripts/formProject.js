@@ -1,8 +1,13 @@
 /** @jsx React.DOM */
 
 var App = React.createClass({
+  getInitialState: function(){
+    return { 
+      me : $.getJSON("/me")
+    };
+  },
   render : function(){
-    return <div><Notification /><YourProject /><Projects /><Hackers /></div>;
+    return <div><Notification data={this.state.me.notifications} /><YourProject /><Projects /><Hackers /></div>;
   }
 });
 
@@ -15,7 +20,7 @@ var Notification = React.createClass({
     console.log("refuse");
   },
   render : function(){
-    var form = <Participation1/>;
+    var form = <Participation3/>;
     return <div className="notification">{form}</div>;
   }
 });
@@ -33,11 +38,35 @@ var Participation1 = React.createClass({
   }
 });
 
+var Participation2 = React.createClass({
+  render : function(){
+    return <div class="wrapper participation-2">
+        <h1>Très heureux de te compter parmi nous :-)</h1>
+        <form>
+            <label class="details">Qu'est-ce que tu voudrais faire ?</label>
+            <input type="text" placeholder="arduino, fun, café ..."/>
+            <input type="submit" class="button polygon" value="GO"/>
+        </form>
+    </div>
+  }
+});
 
+var Participation3 = React.createClass({
+  render : function(){
+    return <div class="wrapper participation-3">
+        <h1>Très heureux de te compter parmi nous :-)</h1>
+        <form>
+            <label class="details">Qu'est-ce que tu voudrais faire ?</label>
+            <input type="text" placeholder="arduino, fun, café ..."/>
+            <input type="submit" class="button polygon" value="GO"/>
+        </form>
+    </div>
+  }
+});
 
 var YourProject = React.createClass({
   render : function(){
-    return <div></div>;
+    return <div><formProject/></div>;
   }
 });
 
