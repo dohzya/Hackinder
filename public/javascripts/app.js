@@ -4,13 +4,13 @@ document.addEventListener('submit', function (event) {
   event.preventDefault();
 });
 
-$(".main").onepage_scroll({
-  sectionContainer: "section",
-  easing: "ease",
-  animationTime: 1000,
-  pagination: true,
-  updateURL: false
-});
+// $(".main").onepage_scroll({
+//   sectionContainer: "section",
+//   easing: "ease",
+//   animationTime: 1000,
+//   pagination: true,
+//   updateURL: false
+// });
 
 var Router = Abyssa.Router,
     State = Abyssa.State;
