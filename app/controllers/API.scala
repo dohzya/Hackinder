@@ -49,6 +49,17 @@ object API extends Controller with Context {
     )
   }
 
+  def meNow = WithContext { implicit req =>
+    val meJson = Json.toJson(me).asInstanceOf[JsObject]  // Just 4 U
+    currentEvent match {
+      case Some(event) =>
+        Ok(meJson ++ Json.obj(
+          "participate" -> event.hackers.contains(me.oid)
+        ))
+      case None => Ok(meJson)
+    }
+  }
+
   def getProjectsAndHackers = WithContext.async { implicit req =>
     currentEvent match {
       case Some(event) =>
