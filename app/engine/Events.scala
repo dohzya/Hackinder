@@ -3,6 +3,8 @@ package engine
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import org.joda.time.DateTime
+
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import reactivemongo.api._
 import reactivemongo.api.collections.default.BSONCollectionProducer
@@ -33,6 +35,16 @@ object Events {
     collection.find(BSONDocument("_id" -> BSONDocument("$in" -> ids)))
       .cursor[Event]
       .collect[Seq]()
+  }
+
+  def findCurrentEvent(): Future[Option[Event]] = {
+    collection
+      .find(BSONDocument())
+      .sort(BSONDocument("date" -> -1))
+      .one[Event].map(_.flatMap { event =>
+        if (event.date.getMillis > DateTime.now.getMillis) Some(event)
+        else None
+      })
   }
 
   def getProjectsAndHackers(event: Event): Future[(Map[BSONObjectID, (Project, Map[BSONObjectID, Hacker])], Map[BSONObjectID, Hacker])] = for {

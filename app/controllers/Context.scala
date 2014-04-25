@@ -7,7 +7,8 @@ import play.api._
 import play.api.mvc._
 import play.api.Play.current
 
-import models.Hacker
+import engine.Events
+import models.{ Event, Hacker }
 
 case class CtxRequest[A](request: Request[A], ctx: Ctx) extends WrappedRequest(request)
 
@@ -19,12 +20,21 @@ trait Context {
 
   object WithContext extends ActionBuilder[CtxRequest] {
     def invokeBlock[A](request: Request[A], block: (CtxRequest[A]) => Future[SimpleResult]) = {
-      OAuth2.authenticatedAction[A](request, req => block(CtxRequest(req.request, Ctx(req.hacker))))
+      OAuth2.authenticatedAction[A](request, req => {
+        Events.findCurrentEvent().flatMap { event =>
+          val ctx = Ctx(
+            hacker = req.hacker,
+            event = event
+          )
+          block(CtxRequest(req.request, ctx))
+        }
+      })
     }
   }
 
 }
 
 case class Ctx(
-  hacker: Hacker
+  hacker: Hacker,
+  event: Option[Event]
 )
