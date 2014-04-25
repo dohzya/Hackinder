@@ -21,12 +21,14 @@ object API extends Controller with Context {
     implicit val reader = projectCreationReader(me)
     reader.reads(req.body).fold(
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
-      project => Projects.insert(project).flatMap { project =>
-        Projects.findHackersOf(project).map(_.map(h => (h.oid -> h)).toMap).map { hackers =>
+      project => for {
+        insert <- Projects.insert(project)
+        _ <- Future.sequence(currentEvent.map( e => Events.addProject(e, insert)).toSeq)
+        json <- Projects.findHackersOf(insert).map(_.map(h => (h.oid -> h)).toMap).map { hackers =>
           implicit val writer = projectWriter(hackers)
-          Ok(Json.toJson(project))
+          Json.toJson(insert)
         }
-      }
+      } yield Ok(json)
     )
   }
 

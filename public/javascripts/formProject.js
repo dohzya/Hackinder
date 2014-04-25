@@ -38,7 +38,8 @@ var Hackers = React.createClass({
 
 var createButton = React.createClass({
   onClick: function () {
-    console.log('CLICK');
+    console.log('CLICK', router.currentState().params);
+    go({create: true});
   },
   render: function () {
     console.log(this.props);
@@ -51,6 +52,7 @@ var createButton = React.createClass({
 var formProject = React.createClass({
   onSubmit: function () {
     console.log('onSubmit', this.props, this.state);
+    go({create: false});
   },
   handleName: function (event) {
     this.setState({name: event.target.value});

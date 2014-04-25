@@ -17,6 +17,7 @@ trait Context {
 
   implicit def ctx(implicit req: CtxRequest[_]) = req.ctx
   implicit def me(implicit ctx: Ctx) = ctx.hacker
+  implicit def currentEvent(implicit ctx: Ctx) = ctx.event
 
   object WithContext extends ActionBuilder[CtxRequest] {
     def invokeBlock[A](request: Request[A], block: (CtxRequest[A]) => Future[SimpleResult]) = {

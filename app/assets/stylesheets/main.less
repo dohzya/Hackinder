@@ -7,16 +7,98 @@
 
 // *********************** VARIABLES *********
 
-
+@darkgrey: 	#282828;
+@black : 	#0d0d0d;
+@lightpink: #ff7a9c;
+@whitepink: #efdae0;
 
 // *********************** FONTS *************
+
+@import url("http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,300,600,700");
+
+@open: 'Open Sans', 'sans-serif';
 
 
 // *********************** GENERAL ***********
 
+*{
+	.box-sizing(border-box);
+	-webkit-font-smoothing: antialiased;
+}
+
+body{
+	width: 100%;
+	font: 400 ~"14px/18px" @open;
+}
 
 
 // *********************** LAYOUT ************
+
+.wrapper{
+	width: @total-width;
+	margin: 0px auto;
+	.clearfix;
+}
+
+
+header{
+	background: @darkgrey;
+	padding: 40px 0px;
+	div.wrapper{
+		h1{
+			color: @lightpink;
+			font-weight: 300;
+			font-size: 36px;
+			line-height: 50px;
+			span.kindersurprise{
+				display: inline-block;
+				height: 50px;
+				width: 35px;
+				background: @lightpink;
+				.border-radius(~"50%/60%" 60% 40% 40%);
+				vertical-align: text-top;
+				margin-right: 20px;
+
+			}
+		}
+		h2, h3{
+			color: @whitepink;
+			display: inline-block;
+			font-weight: 300;
+		}
+		h2{
+			font-size: 26px;
+			margin-right: 12px;
+		}
+		h3{
+			.border-radius(50%);
+			border: solid 1px @whitepink;
+			text-align: center;
+			.square(60px);
+			padding: 11px 0px;
+			span{
+				display: inline-block;
+				font-weight: 500;
+				&.year{
+					vertical-align: top;
+					font-weight: 400;
+				}
+			}
+		}
+	}
+
+}
+
+.notification{
+	background: @black;
+	text-align: center;
+	h1{
+		color: @whitepink;
+	}
+	p.details{
+		color: #FFF;
+	}
+}
 
 
 // *********************** SPECIFIC STYLES ***

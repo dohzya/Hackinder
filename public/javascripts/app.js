@@ -13,9 +13,12 @@ document.addEventListener('submit', function (event) {
 // });
 
 var Router = Abyssa.Router,
-    State = Abyssa.State;
+    State = Abyssa.State,
+    go = function (params) {
+      router.state('home', _.defaults(params, router.currentState().params)).done();
+    };
 
-Router({
+var router = Router({
   home: State('/?create&edit&slide', {
     data: {
       create: false,
@@ -36,19 +39,19 @@ Router({
       console.log('Update page');
 
       // CREATE PROJECT
-      if (params.create !== this.data('create')) {
+      if (params.create !== undefined && params.create !== this.data('create')) {
         this.data('create', params.create);
         toggleCreate(params.create);
       }
 
       // EDIT PROJECT
-      if (params.edit !== this.data('edit')) {
+      if (params.edit !== undefined && params.edit !== this.data('edit')) {
         this.data('edit', params.edit);
         toggleEdit(params.edit);
       }
 
       // PROJECTS SLIDER
-      if (params.slide !== this.data('slide')) {
+      if (params.slide !== undefined && params.slide !== this.data('slide')) {
         this.data('slide', params.slide);
         slideTo(params.slide);
       }
