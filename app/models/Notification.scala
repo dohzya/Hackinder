@@ -13,7 +13,10 @@ case class ParticipationNotification(
   oid: BSONObjectID,
   eventId: BSONObjectID,
   hackerId: BSONObjectID
-) extends Notification { def typ = ParticipationNotification.typ }
+) extends Notification {
+  def typ = ParticipationNotification.typ
+}
+
 object ParticipationNotification {
   val typ = "participation"
   def create(event: Event, hackerId: BSONObjectID) = ParticipationNotification(
@@ -27,7 +30,10 @@ case class InviteHackerNotification(
   oid: BSONObjectID,
   projectId: BSONObjectID,
   hackerId: BSONObjectID
-) extends Notification { def typ = InviteHackerNotification.typ }
+) extends Notification {
+  def typ = InviteHackerNotification.typ
+}
+
 object InviteHackerNotification {
   val typ = "inviteHacker"
   def create(project: Project, hackerId: BSONObjectID) = InviteHackerNotification(
@@ -41,7 +47,10 @@ case class AskProjectNotification(
   oid: BSONObjectID,
   hackerId: BSONObjectID,
   projectId: BSONObjectID
-) extends Notification { def typ = AskProjectNotification.typ }
+) extends Notification {
+  def typ = AskProjectNotification.typ
+}
+
 object AskProjectNotification {
   val typ = "askProject"
   def create(hacker: Hacker, projectId: BSONObjectID) = AskProjectNotification(

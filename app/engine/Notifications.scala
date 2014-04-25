@@ -33,6 +33,10 @@ object Notifications {
     collection.find(BSONDocument("_id" -> id)).one[Notification]
   }
 
+  def checkForUser(id: BSONObjectID)(implicit ctx: Ctx): Future[Option[Notification]] = {
+    collection.find(BSONDocument("_id" -> id, "hackerId" -> ctx.hacker.oid)).one[Notification]
+  }
+
   def ofUser(implicit ctx: Ctx): Future[(Seq[Notification], Map[BSONObjectID, Project], Map[BSONObjectID, Hacker])] = {
     val query = ctx.event match {
       case Some(event) =>
@@ -54,6 +58,42 @@ object Notifications {
       Projects.findAllByIdWithHackers(projectIds).map { case (projects, hackers) =>
         (notifs, projects.map(p => (p.oid -> p)).toMap, hackers)
       }
+    }
+  }
+
+  def delete(id: BSONObjectID): Future[Option[String]] = {
+    collection.remove(BSONDocument("_id" -> id)).map(_.err)
+  }
+
+  def accept(notif: Notification): Future[Unit] = {
+    notif match {
+      case n:ParticipationNotification => for {
+        event <- Events.findById(n.eventId)
+        hacker <- Hackers.findById(n.hackerId)
+        add <- Future.sequence((for {
+          e <- event
+          h <- hacker
+          a = Events.addHacker(e, h)
+        } yield a).toSeq)
+      } yield ()
+      case n:InviteHackerNotification => for {
+        project <- Projects.findById(n.projectId)
+        hacker <- Hackers.findById(n.hackerId)
+        add <- Future.sequence((for {
+          p <- project
+          h <- hacker
+          a = Projects.addTeammate(p, h)
+        } yield a).toSeq)
+      } yield ()
+      case n:AskProjectNotification => for {
+        project <- Projects.findById(n.projectId)
+        hacker <- Hackers.findById(n.hackerId)
+        add <- Future.sequence((for {
+          p <- project
+          h <- hacker
+          a = Projects.addTeammate(p, h)
+        } yield a).toSeq)
+      } yield ()
     }
   }
 

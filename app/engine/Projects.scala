@@ -29,6 +29,10 @@ object Projects {
     } yield project
   }
 
+  def findById(id: BSONObjectID): Future[Option[Project]] = {
+    collection.find(BSONDocument("_id" -> id)).one[Project]
+  }
+
   def findAll(): Future[Seq[Project]] = {
     collection.find(BSONDocument()).cursor[Project].collect[Seq]()
   }

@@ -70,7 +70,44 @@ object API extends Controller with Context {
     }
   }
 
+  def accept = WithContext.async(parse.json) { implicit req =>
+    implicit val reader = idReader
+    reader.reads(req.body).fold(
+      err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
+      id => Notifications.checkForUser(id).flatMap(_ match {
+        case Some(_) => for {
+          notif <- Notifications.findById(id)
+          accept <- Future.sequence(notif.map(Notifications.accept(_)).toList)
+          delete <- Notifications.delete(id)
+        } yield Ok
+        case None => Future.successful(BadRequest)
+      })
+    )
+  }
+
+  def decline = WithContext.async(parse.json) { implicit req =>
+    implicit val reader = idReader
+    reader.reads(req.body).fold(
+      err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
+      id => Notifications.checkForUser(id).flatMap(_ match {
+        case Some(_) => for {
+          notif <- Notifications.findById(id)
+          delete <- Notifications.delete(id)
+        } yield Ok
+        case None => Future.successful(BadRequest)
+      })
+    )
+  }
+
   // UTILS
+
+  def idReader: Reads[BSONObjectID] = {
+    (
+      (__ \ "id").read[String]
+    ).map { case id =>
+      BSONObjectID(id)
+    }
+  }
 
   def eventCreationReader: Reads[Event] = {
     (
