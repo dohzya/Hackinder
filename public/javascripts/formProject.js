@@ -2,32 +2,79 @@
 
 var App = React.createClass({
   getInitialState: function(){
-    return { 
-      me : $.getJSON("/me")
+    return {
+      me : null,
+      notifications : []
     };
   },
+  loadState : function(data){
+    console.log(arguments);
+    this.setState(data);
+  },
+  componentDidMount : function(){
+    $.getJSON("/me").then(this.loadState);
+  },
   render : function(){
-    return <div><Notification data={this.state} /><YourProject /><Projects /><Hackers /></div>;
+    return <div><Notification/><YourProject /><Projects /><Hackers /></div>;
   }
 });
 
 var Notification = React.createClass({
-  accept : function(e){
-    console.log("accept");
-    e.preventDefault();
+  getInitialState:function(){
+    return {
+      notifications:[]
+    };
   },
-  refuse : function(){
-    console.log("refuse");
+  componentDidMount : function(){
+    $.getJSON("/notifications").then(this.loadState);
+  },
+  loadState:function( state ){
+    this.setState({
+      notifications:state
+    });
   },
   render : function(){
-    console.log(this.props.data);
-    var form = <Participation3/>;
+    var form = this.state.notifications.map(function(n){
+      if(n.type === "participation") return <Participation key={n.id} remove={this.remove.bind(this, n.id)}/>;
+      else "";
+    }, this);
     return <div className="notification">{form}</div>;
+  },
+  remove : function(id){
+    var newNotif = _.filter(this.state.notifications, function( n ){
+        return id != n.id;
+     }, this)
+
+    this.setState({
+      notifications: newNotif
+    });
   }
 });
 
-var Participation1 = React.createClass({
-  render : function(){
+var Participation = React.createClass({
+  getInitialState : function(){
+    return {
+      step : 0
+    };
+  },
+  render:function(){
+    var steps = [
+      this.viewStep1,
+      this.viewStep2
+    ];
+    return steps[this.state.step]();
+  },
+  accept: function(e){
+    this.setState({
+      step: 1
+    });
+    e.preventDefault();
+    setTimeout(this.props.remove, 1000)
+  },
+  refuse : function(){
+
+  },
+  viewStep1 : function(){
     return <div className="wrapper participation-1">
         <h1>Veux-tu participer au prochain Hackday ?</h1>
         <p className="details">Une petite réponse avant mercredi 23 avril et on serait ravi !</p>
@@ -36,31 +83,10 @@ var Participation1 = React.createClass({
                 <a href="" onClick={this.refuse}>non</a>
         </div>
     </div>;
-  }
-});
-
-var Participation2 = React.createClass({
-  render : function(){
-    return <div className="wrapper participation-2">
-        <h1>Très heureux de te compter parmi nous :-)</h1>
-        <form>
-            <label className="details">Qu'est-ce que tu voudrais faire ?</label>
-            <input type="text" placeholder="arduino, fun, café ..."/>
-            <input type="submit" className="button polygon" value="GO"/>
-        </form>
-    </div>;
-  }
-});
-
-var Participation3 = React.createClass({
-  render : function(){
+  },
+  viewStep2 : function(){
     return <div className="wrapper participation-3">
         <h1>Très heureux de te compter parmi nous :-)</h1>
-        <form>
-            <label className="details">Qu'est-ce que tu voudrais faire ?</label>
-            <input type="text" placeholder="arduino, fun, café ..."/>
-            <input type="submit" className="button polygon" value="GO"/>
-        </form>
     </div>
   }
 });
@@ -90,7 +116,7 @@ var createButton = React.createClass({
   },
   render: function () {
     console.log(this.props);
-    return <div class="new-project">
+    return <div className="new-project">
       <button type="button" onClick={this.onClick}>Crée ton projet</button>
     </div>
   }
@@ -115,7 +141,7 @@ var formProject = React.createClass({
       this.setState(this.props.data);
     }
 
-    return <div class="new-project-2">
+    return <div className="new-project-2">
       <h1>Crée ton projet</h1>
       <form onSubmit={this.onSubmit}>
         <input type="text" onChange={this.handleName} placeholder="Nom du projet"/>
