@@ -1,9 +1,14 @@
 package engine
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import play.modules.reactivemongo.ReactiveMongoPlugin
 import reactivemongo.api._
 import reactivemongo.api.collections.default.BSONCollectionProducer
 import reactivemongo.bson._
+
+import play.api.Play.current
 
 import models.{ Event, Project }
 
@@ -24,13 +29,13 @@ object Events {
     collection.find(BSONDocument()).cursor[Event].collect[Seq]()
   }
 
-  def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Project]] = {
+  def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Event]] = {
     collection.find(BSONDocument("_id" -> BSONDocument("$in" -> ids)))
               .cursor[Event]
               .collect[Seq]()
   }
 
-  def findAllWithProjects: Future[(Seq[Event], Map[BSONObjectId, Project])] = for {
+  def findAllWithProjects: Future[(Seq[Event], Map[BSONObjectID, Project])] = for {
     events <- findAll
     projects <- Projects.findAllById(events.flatMap(_.projects))
     projectsMap = projects.map(p => (p.oid, p)).toMap
@@ -49,7 +54,7 @@ object Events {
         BSONDocument("_id" -> event.oid),
         BSONDocument("projects" -> 1)
       ).one[BSONDocument].map { doc =>
-        val projects = doc.flatMap(_.getAs[Seq[BSONObjectId]]("projects")).getOrElse {
+        val projects = doc.flatMap(_.getAs[Seq[BSONObjectID]]("projects")).getOrElse {
           throw new java.lang.RuntimeException(s"Can't find event ${event.oid}'s 'projects' field!")
         }
         event.copy(projects = projects)
