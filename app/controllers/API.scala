@@ -37,8 +37,8 @@ object API extends Controller with Context {
     reader.reads(req.body).fold(
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
       event => Events.insert(event).flatMap { event =>
-        Events.getProjectsAndHackers(event).map { case (projectsWithHackers, hackers) =>
-          implicit val writer = eventWriter(hackers, projectsWithHackers)
+        Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
+          implicit val writer = eventWriter(projects, hackers)
           Ok(Json.toJson(event))
         }
       }
@@ -72,15 +72,15 @@ object API extends Controller with Context {
     )
   }
 
-  def eventWriter(hackers: Map[BSONObjectID, Hacker], projectsWithHackers: Map[BSONObjectID, (Project, Map[BSONObjectID, Hacker])]) = new Writes[Event] {
+  def eventWriter(projects: Map[BSONObjectID, Project], hackers: Map[BSONObjectID, Hacker]) = new Writes[Event] {
     def writes(event: Event) = Json.obj(
       "name" -> event.name,
       "date" -> event.date,
       "hackers" -> JsArray(event.hackers.flatMap(hackers.get(_).map(Json.toJson(_)))),
       "projects" -> JsArray(event.projects.flatMap {
-        projectsWithHackers.get(_).map { project =>
-          implicit val writer = projectWriter(project._2)
-          Json.toJson(project._1)
+        projects.get(_).map { project =>
+          implicit val writer = projectWriter(hackers)
+          Json.toJson(project)
         }
       })
     )
