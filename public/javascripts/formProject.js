@@ -5,7 +5,7 @@ var App = React.createClass({
     return { 
       me : $.getJSON("/me")
     };
-  }
+  },
   render : function(){
     return <div><Notification data={this.state.me.notifications} /><YourProject /><Projects /><Hackers /></div>;
   }
