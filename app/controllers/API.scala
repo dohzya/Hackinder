@@ -39,11 +39,33 @@ object API extends Controller with Context {
       err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
       event => Events.insert(event).flatMap { event =>
         Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
-          implicit val writer = eventWriter(projects, hackers)
+          implicit val writer = eventWriter(
+            projects.map(p => (p.oid -> p)).toMap,
+            hackers.map(h => (h.oid -> h)).toMap
+          )
           Ok(Json.toJson(event))
         }
       }
     )
+  }
+
+  def getProjectsAndHackers = WithContext.async { implicit req =>
+    currentEvent match {
+      case Some(event) =>
+        Events.getProjectsAndHackers(event).map { case (projects, hackers) =>
+          implicit val writer = projectWriter(hackers.map(h => (h.oid -> h)).toMap)
+          Ok(Json.obj(
+            "projets" -> projects,
+            "hackers" -> hackers
+          ))
+        }
+      case None => Future.successful {
+        Ok(Json.obj(
+          "projets" -> Json.arr(),
+          "hackers" -> Json.arr()
+        ))
+      }
+    }
   }
 
   def notifications = WithContext.async { implicit req =>
