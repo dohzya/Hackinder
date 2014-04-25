@@ -35,9 +35,16 @@ object Projects {
   def findAllWithHackers(): Future[(Seq[Project], Map[BSONObjectID, Hacker])] = {
     for {
       projects <- findAll
-      hackers <- Hackers.findAllById(projects.flatMap(_.team))
+      hackers <- findHackersOf(projects)
       hackersMap = hackers.map(h => (h.oid, h)).toMap
     } yield (projects, hackersMap)
+  }
+
+  def findHackersOf(projects: Seq[Project]): Future[Seq[Hacker]] = {
+    Hackers.findAllById(projects.flatMap(_.team))
+  }
+  def findHackersOf(project: Project): Future[Seq[Hacker]] = {
+    Hackers.findAllById(project.team)
   }
 
   def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Project]] = {
