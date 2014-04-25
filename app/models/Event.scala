@@ -9,6 +9,7 @@ case class Event(
   @Key("_id") oid: BSONObjectID,
   name: String,
   projects: Seq[BSONObjectID],
+  hackers: Seq[BSONObjectID],
   date: DateTime
 // TODO later
 /*
@@ -24,6 +25,7 @@ object Event {
       oid = BSONObjectID.generate,
       name = name,
       projects = Nil,
+      hackers = Nil,
       date = date
     )
   }

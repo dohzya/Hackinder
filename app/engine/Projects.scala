@@ -53,6 +53,11 @@ object Projects {
               .collect[Seq]()
   }
 
+  def findAllByIdWithHackers(ids: Seq[BSONObjectID]): Future[Seq[(Project, Map[BSONObjectID, Hacker])]] = for {
+    projects <- findAllById(ids)
+    projectsAndHackers <- Future.sequence(projects.map { project => findHackersOf(project).map( hackers => (project, hackers.map(h => (h.oid -> h)).toMap)) })
+  } yield projectsAndHackers
+
   def findByName(name: String): Future[Option[Project]] = {
     collection.find(BSONDocument("name" -> name)).one[Project]
   }

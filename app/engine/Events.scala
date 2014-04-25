@@ -10,7 +10,7 @@ import reactivemongo.bson._
 
 import play.api.Play.current
 
-import models.{ Event, Project }
+import models.{ Event, Project, Hacker }
 
 object Events {
   def db = ReactiveMongoPlugin.db
@@ -31,15 +31,16 @@ object Events {
 
   def findAllById(ids: Seq[BSONObjectID]): Future[Seq[Event]] = {
     collection.find(BSONDocument("_id" -> BSONDocument("$in" -> ids)))
-              .cursor[Event]
-              .collect[Seq]()
+      .cursor[Event]
+      .collect[Seq]()
   }
 
-  def findAllWithProjects: Future[(Seq[Event], Map[BSONObjectID, Project])] = for {
-    events <- findAll
-    projects <- Projects.findAllById(events.flatMap(_.projects))
-    projectsMap = projects.map(p => (p.oid, p)).toMap
-  } yield (events, projectsMap)
+  def getProjectsAndHackers(event: Event): Future[(Map[BSONObjectID, (Project, Map[BSONObjectID, Hacker])], Map[BSONObjectID, Hacker])] = for {
+    projectsWithHackers <- Projects.findAllByIdWithHackers(event.projects)
+    projectsWithHackersMap = projectsWithHackers.map { case (p, hackers) => (p.oid, (p, hackers)) }.toMap
+    hackers <- Hackers.findAllById(event.hackers)
+    hackersMap = hackers.map(h => (h.oid, h)).toMap
+  } yield (projectsWithHackersMap, hackersMap)
 
   def findByName(name: String): Future[Option[Event]] = {
     collection.find(BSONDocument("name" -> name)).one[Event]
